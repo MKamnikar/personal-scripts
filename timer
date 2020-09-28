@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+
+# This is a timer.
+# It accepts args time in hh:mm:ss
+#           and length in integer
+#           and action (bash command)
+# and it prints time left and nice graphic representation of remainder.
+
+# Depending on command line arguments it executes a specified command upon
+# reaching the end of time.
+
+import os
+import getopt
+import sys
+import time as TIME
+
+# Command line arguments.
+args = sys.argv[1:]  # Ignore script filename.
+optlist = getopt.getopt(args, 't:l:a:h', ['time=', 'length=', 'action=, help'])[0]
+help_string = """
+Usage: timer [OPTIONS]
+Displays a countdown timer and executes a command when
+timer runs out.
+
+Arguments:
+  -h, --help        Prints this help message.
+  -t, --time=       Accepts time in format 'hh:mm:ss'.
+                    Sets timer to that time. Default is 25min.
+  -a, --action=     Command that will be executed when timer
+                    runs out.
+  -l, --length=     Length of grafical representation of time left.
+"""
+
+time = '00:25:00'
+length = 15
+action = ''
+
+for optarg in optlist:
+    if optarg[0] == '-t' or optarg[0] == '--time':
+        if len(optarg[1]) == 8:
+            # Careful because there is no input sanitation.
+            time = optarg[1]
+    elif optarg[0] == '-l' or optarg[0] == '--length':
+        length = int(optarg[1])
+    elif optarg[0] == '-a' or optarg[0] == '--action':
+        action = optarg[1]
+    elif optarg[0] == '-h' or optarg[0] == '--help':
+        print(help_string)
+        exit()  # Force exit.
+
+time_h = int(time[:2])
+time_m = int(time[3:5])
+time_s = int(time[-2:])
+
+total_seconds = time_s + time_m * 60 + time_h * 3600
+
+for remaining_seconds in range(total_seconds, -1, -1):
+    factor = remaining_seconds / total_seconds
+    special_string = int(length * factor) * '#' + int(length * (1 - factor)) * '-'
+    while len(special_string) < length:
+        special_string += '-'
+
+    rem_h = remaining_seconds // 3600
+    rem_m = (remaining_seconds - rem_h * 3600) // 60
+    rem_s = remaining_seconds % 60
+    print('{} {:0>2}:{:0>2}:{:0>2}'.format(special_string, rem_h, rem_m, rem_s), end='\r')
+    TIME.sleep(1)
+
+os.system(action)

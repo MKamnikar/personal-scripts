@@ -1,0 +1,46 @@
+#!/bin/env bash
+
+# Reads sink 0 (default sink) volume and sets all sinks to
+# that same volume.
+# Accepts sdtin in format '[-+][1-9]{1,3}%\?\|mute'
+# and sets all sinks to that volume.
+
+# Get all audio sinks.
+PACTL_SINKS=$(pactl list sinks)
+
+# Get current value of volume.
+SINK_0_VOLUME=$(echo "$PACTL_SINKS" | grep 'Volume' | head -1 | grep -Eo '[0-9]{1,4}%' | head -1)
+
+# Find out which of the sinks are active.
+ACTIVE_SINKS=$(echo "$PACTL_SINKS" | grep 'Sink' | grep -Eo '#[0-9]{1,2}' | cut -c 2-)
+
+# Set the settings, the user specified with command line arguments.
+# Toggle mute.
+if [[ "$1" == "mute" ]]; then
+    for SINK in $ACTIVE_SINKS;
+    do
+        pactl set-sink-mute "$SINK" toggle
+    done
+    pkill -RTMIN+4 i3blocks # Refresh i3-blocks blocklet.
+fi
+
+# Increase/decrease volume in relative way.
+if [[ -n "$(echo "$1" | grep -Eo '[-+][0-9]{1,3}%')" ]]; then
+    for SINK in $ACTIVE_SINKS;
+    do
+        pactl set-sink-volume "$SINK" "$SINK_0_VOLUME" # Set all sinks equal volume.
+        pactl set-sink-volume "$SINK" "$1" # Adjust volume according to input.
+    done
+    pkill -RTMIN+4 i3blocks # Refresh i3-blocks blocklet.
+    exit 0
+fi
+
+# Set volume to specified value.
+if [[ -n "$(echo "$1" | grep -Eo '[0-9]{1,3}%')" ]]; then
+    for SINK in $ACTIVE_SINKS;
+    do
+        pactl set-sink-volume "$SINK" "$SINK_0_VOLUME" # Set all sinks equal volume.
+        pactl set-sink-volume "$SINK" "$1" # Adjust volume according to input.
+    done
+    pkill -RTMIN+4 i3blocks # Refresh i3-blocks blocklet.
+fi

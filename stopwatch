@@ -1,0 +1,23 @@
+#!/bin/env python3
+
+# This is a simple stopwatch.
+
+from time import sleep
+import time
+
+t = time.time()
+delta = 0.1
+
+def split(seconds):
+    # Returns hours, minutes, seconds
+    hours = seconds // 3600
+    minutes = seconds // 60 % 60
+    seconds = seconds % 60
+    return (int(hours), int(minutes), seconds)
+
+# Print the time.
+while True:
+    sleep(delta)
+    elapsed = split(time.time() - t)
+    print("Elapsed: {}h {}m {:.1f}s"
+          .format(elapsed[0], elapsed[1], elapsed[2]), end='\r')

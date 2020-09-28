@@ -1,0 +1,7 @@
+#!/bin/env sh
+
+# Blacks out the screen.
+# Really just opens an image which is fully black.
+# My i3 config stretches any container with title 'fullscreen'.
+
+feh --title 'fullscreen' ~/Pictures/Wallpapers/colors/black.jpg &

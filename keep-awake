@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Prevents computer from sleeping by moving the mouse
+# every four minutes in square of size 2x2 pixels.
+
+if [[ "$(tty)" == "not a tty" ]]; then
+    notify-send 'keep-awake' 'Running...'
+else
+    echo "Running..."
+fi
+
+while :
+do
+    sleep 4m
+    xdotool mousemove_relative -- 1 0
+    xdotool mousemove_relative -- 0 1
+    xdotool mousemove_relative -- -1 0
+    xdotool mousemove_relative -- 0 -1
+done

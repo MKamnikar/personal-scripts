@@ -1,0 +1,15 @@
+#!/bin/env zsh
+
+# This will create notes in specified directory with optional title
+
+# This is where notes live.
+SAVE_DIR="/home/$USER/Documents/Notes/"
+TIME=$(date +"%F_%T")
+
+# Add args to note if there are args.
+if [[ -n "$1" ]]; then
+    echo "# NOTE: -- $1 -- #\n\n" > "$SAVE_DIR$TIME"
+fi
+
+# Open note.
+$EDITOR "$SAVE_DIR$TIME"

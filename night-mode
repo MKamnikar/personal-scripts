@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Darkens and warms monitor colors for use during the night.
+
+# List of all outputs.
+OUTPUTS=$(xrandr --listactivemonitors | sed 1d | cut -d ' ' -f 3 | sed 's/[\*+]//g')
+
+# Darken all outputs.
+for MONITOR in $OUTPUTS; do
+    xrandr --output "$MONITOR" --brightness 0.8 --gamma 1:0.95:0.85
+done

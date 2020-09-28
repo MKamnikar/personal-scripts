@@ -1,0 +1,32 @@
+#!/bin/env bash
+
+# Flashes all active screens red for a few times.
+# Used to get the users attention.
+# Mainly used in the zsh alias 'pause' or 'rest'.
+
+# Store properties before any changes.
+START_GAMMA=$(xrandr --verbose | grep -i gamma | head -1 | cut -d' ' -f 2- | sed 's/\s//g')
+START_BRIGHTNESS=$(xrandr --verbose | grep -i brightness | head -1 | cut -d' ' -f 2)
+
+# List of all outputs.
+OUTPUTS=$(xrandr --listactivemonitors | sed 1d | cut -d ' ' -f 3 | sed 's/[\*+]//g')
+
+# Flash the screens.
+for i in {1..6}; do
+    for MONITOR in $OUTPUTS; do
+        xrandr --output "$MONITOR" --gamma 100:0.01:0.01 --brightness 1
+    done
+    sleep 0.2
+    for MONITOR in $OUTPUTS; do
+        xrandr --output "$MONITOR" --brightness 0
+    done
+    sleep 0.15
+    for MONITOR in $OUTPUTS; do
+        xrandr --output "$MONITOR" --gamma "$START_GAMMA" --brightness "$START_BRIGHTNESS"
+    done
+done
+
+# Revert to starting settings.
+for MONITOR in $OUTPUTS; do
+    xrandr --output "$MONITOR" --gamma "$START_GAMMA" --brightness "$START_BRIGHTNESS"
+done

@@ -1,0 +1,25 @@
+#!/bin/env sh
+
+# This script shows MAC addresses
+# of machines connected to the same
+# local network.
+
+# Use it to copy their MAC address and
+# set it as your own - on airports or hotel
+# - wherever you are expected to pay
+# for wifi
+
+# depends on nmap, ip, sudo, hostname
+
+LOCAL_IP=$(hostname -I | cut -d' ' -f 1)
+PORT=$(ip add | grep inet | grep global | cut -d'/' -f 2 | cut -d' ' -f 1 | head -1)
+
+echo "MAC SEARCHER"
+echo "local IP: ${LOCAL_IP}"
+echo "Port: ${PORT}"
+echo '' # newline - for readability
+
+SCANNED=$(sudo nmap -sP -n "${LOCAL_IP}/${PORT}" | tee /dev/tty | grep MAC)
+
+echo '' # newline - for readability
+echo "${SCANNED}"

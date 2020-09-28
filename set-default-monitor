@@ -1,0 +1,45 @@
+#!/bin/env bash
+
+# If no monitors are active then original laptop monitor is set as the single output.
+# If no other monitors are connected default monitor is set as the single output.
+# Otherwise it does nothing.
+
+# Stored in /usr/local/bin
+
+# Find out how many monitors are connected and how many are active.
+NUM_CONNECTED_MONITORS=$(xrandr | grep -i ' connected ' | wc -l)
+NUM_ACTIVE_MONITORS=$(xrandr | grep -i '*' | wc -l)
+
+# If no monitors are active (no graphical output at all) enable laptops built-in monitor.
+if [[ $NUM_ACTIVE_MONITORS == "0" ]]
+then
+    bash ~/.config/screenlayout/default
+    exit 0
+fi
+
+# If only one monitor is connected it must be the built-in one. Enable it.
+if [[ $NUM_CONNECTED_MONITORS == "1" ]]
+then
+    bash ~/.screenlayout/default
+    exit 0
+# If more than one monitor is connected, prompt the user to choose configuration from a list of presets.
+# Presets are defined in ~/.config/screenlayout/
+elif [[ $NUM_CONNECTED_MONITORS == "2" ]]
+then
+    LAYOUT=$(ls -1 ~/.config/screenlayout | rofi -lines 4 -dmenu -p "Choose Layout: " -monitor -1)
+    if [[ -n "$LAYOUT" ]]
+    then
+        exec "~/.config/screenlayout/$LAYOUT"
+    fi
+    exit 0
+# If more than one monitor is connected, prompt the user to choose configuration from a list of presets.
+# Presets are defined in ~/.config/screenlayout/
+elif [[ $NUM_CONNECTED_MONITORS == "3" ]]
+then
+    LAYOUT=$(ls -1 ~/.config/screenlayout/ | rofi -lines 4 -dmenu -p "Choose Layout: " -monitor -1 )
+    if [[ -n "$LAYOUT" ]]
+    then
+        exec "~/.config/screenlayout/$LAYOUT"
+    fi
+    exit 0
+fi

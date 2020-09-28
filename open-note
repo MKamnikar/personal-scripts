@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Searches through notes and opens found note in vim.
+# Normally stored in /usr/local/bin
+
+NOTE_TEXT="$(grep -f ~/Documents/Notes/* | cut -c 28- | grep -i "$1")"
+
+if [[ -z "$NOTE_TEXT" ]]; then
+    echo "No such entry in notes: $1"
+    exit 0
+fi
+
+# Open a rofi prompt to search through notes.
+FOUND_NOTE=$(echo "$NOTE_TEXT" | rofi -dmenu -fn 'Inconsolata' -i -l 10 -p "Open Note: " | cut -c -19)
+
+if [[ -n "$FOUND_NOTE" ]]; then
+    # Open in same terminal if running in terminal,
+    # else open in new terminal window.
+    if [[ "$(tty)" == "not a tty" ]]; then
+        gnome-terminal -e "$EDITOR $HOME/Documents/Notes/$FOUND_NOTE"
+    else
+        $EDITOR ~/Documents/Notes/$FOUND_NOTE
+    fi
+fi
+
+exit 0

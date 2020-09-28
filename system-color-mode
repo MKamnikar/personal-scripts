@@ -1,0 +1,91 @@
+#!/bin/env bash
+
+# This script looks into directory ~/.config/system-color-mode/
+# and changes appropriate lines to be in line with either light- or dark-mode
+# depending on users choice.
+
+# User is expected to input either "dark" or "light".
+
+if [ -z "${1}" ]; then
+    echo "DEBUG: no input (\$1)"
+    notify-send -t 5000 --urgency="critical" "system-color-mode ERROR" "No input!"
+    exit 0
+else
+    echo "DEBUG: input = $1"
+    if [ "${1}" == "dark" ]; then # user input == "dark"
+        # Make it dark!.
+
+        # i3.
+        sed -i "s/\(='.\+\)-light'/\1-dark'/" ~/.config/i3/config
+        sed -i "s/\(='.\+\)kitty-light/\1kitty-dark/" ~/.config/i3/config
+        sed -i "s/wallpaper\/light/wallpaper\/dark/" ~/.config/i3/config
+
+        # rofi.
+        sed -i "s/backgroundcolor: #fbf1c7/backgroundcolor: #0a0a0a/" ~/.config/rofi/config.rasi
+        sed -i "s/foregroundcolor: #0a0a0a/foregroundcolor: #cecece/" ~/.config/rofi/config.rasi
+        sed -i "s/selectioncolor: #7c6f64/selectioncolor: #282828/" ~/.config/rofi/config.rasi
+
+        # dunst.
+        # Normal and low urgency.
+        sed -i 's/background = "#ebdbb2"/background = "#282828"/' ~/.config/dunst/dunstrc
+        sed -i 's/foreground = "#0a0a0a"/foreground = "#d5c4a1"/' ~/.config/dunst/dunstrc
+        # Critical urgency.
+        sed -i 's/background = "#fbf1c7"/background = "#101010"/' ~/.config/dunst/dunstrc
+        sed -i 's/foreground = "#0a0a0a"/foreground = "#d5c4a1"/' ~/.config/dunst/dunstrc
+        # All.
+        sed -i 's/frame_color = "#0a0a0a"/frame_color = "#d5c4a1"/' ~/.config/dunst/dunstrc
+
+        # sxhkd.
+        sed -i "s/\(='.\+\)-light'/\1-dark'/" ~/.config/sxhkd/sxhkdrc
+
+        # zathura.
+        sed -i 's/set recolor "false"/set recolor "true"/' ~/.config/zathura/zathurarc
+
+        # nvim.
+        sed -i 's/set background=light/set background=dark/' ~/.vimrc
+
+        # ranger.
+        sed -i 's/wallpaper\/light/wallpaper\/dark/' ~/.config/ranger/rc.conf
+
+    elif [ "${1}" == "light" ]; then # user input == "light"
+        # Make it light!
+
+        # i3.
+        sed -i "s/\(='.\+\)-dark'/\1-light'/" ~/.config/i3/config
+        sed -i "s/\(='.\+\)kitty-dark/\1kitty-light/" ~/.config/i3/config
+        sed -i "s/wallpaper\/dark/wallpaper\/light/" ~/.config/i3/config
+
+        # rofi.
+        sed -i "s/backgroundcolor: #0a0a0a/backgroundcolor: #fbf1c7/" ~/.config/rofi/config.rasi
+        sed -i "s/foregroundcolor: #cecece/foregroundcolor: #0a0a0a/" ~/.config/rofi/config.rasi
+        sed -i "s/selectioncolor: #282828/selectioncolor: #7c6f64/" ~/.config/rofi/config.rasi
+
+        # dunst.
+        # Normal and low urgency.
+        sed -i 's/background = "#282828"/background = "#ebdbb2"/' ~/.config/dunst/dunstrc
+        sed -i 's/foreground = "#d5c4a1"/foreground = "#0a0a0a"/' ~/.config/dunst/dunstrc
+        # Critical urgency.
+        sed -i 's/background = "#101010"/background = "#fbf1c7"/' ~/.config/dunst/dunstrc
+        sed -i 's/foreground = "#d5c4a1"/foreground = "#0a0a0a"/' ~/.config/dunst/dunstrc
+        # All.
+        sed -i 's/frame_color = "#d5c4a1"/frame_color = "#0a0a0a"/' ~/.config/dunst/dunstrc
+
+        # sxhkd.
+        sed -i "s/\(='.\+\)-dark'/\1-light'/" ~/.config/sxhkd/sxhkdrc
+
+        # zathura.
+        sed -i 's/set recolor "true"/set recolor "false"/' ~/.config/zathura/zathurarc
+
+        # nvim.
+        sed -i 's/set background=dark/set background=light/' ~/.vimrc
+
+        # ranger.
+        sed -i 's/wallpaper\/dark/wallpaper\/light/' ~/.config/ranger/rc.conf
+
+    else # $1 was neither "light" nor "dark".
+        echo "DEBUG: wrong input!"
+        notify-send -t 5000 --urgency="critical" "system-color-mode ERROR" "Wrong input!"
+    fi
+fi
+
+i3 restart

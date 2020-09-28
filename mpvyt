@@ -1,0 +1,14 @@
+#!/bin/env bash
+
+# Plays either link in clipboard or link in $1 in mpv.
+# Depends on mpv and xclip
+
+if [[ -z $1 ]]; then
+    if [[ -n "$(xclip -o)" ]]; then
+        notify-send -t 4000 "Playing in mpv" "$(xclip -o)"
+        mpv "$(xclip -o)"
+	exit 0
+    fi
+    mpv "$(echo $1)"
+    exit 0
+fi

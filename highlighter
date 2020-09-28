@@ -1,0 +1,24 @@
+#!/bin/env bash
+
+# On execution gets location of mouse click and drag
+# and opens image with feh and floats it and scales it
+# to size chosen with clicks and drag.
+# Used to highlight the portion of the screen it overlays.
+# Depends on i3 and compton settings and feh.
+# Consult ~/.config/i3/config and ~/.config/compton/compton.conf
+# for more info.
+
+# Get window size.
+import /tmp/highlight-size.png
+SIZE="$(identify /tmp/highlight-size.png | sed "s/\s/\n/g" | grep .x. | head -1 | sed 's/x/ /' )"
+
+# Get current mouse location.
+LOCATION="$(xdotool getmouselocation --shell)"
+LOC_X="$(echo "$LOCATION" | grep X | cut -d= -f 2)"
+LOC_Y="$(echo "$LOCATION" | grep Y | cut -d= -f 2)"
+
+# Open image and resize and move it.
+feh --title "highlight-overlay" ~/Pictures/Wallpapers/colors/yellow.jpg &
+sleep 0.2 # Needs some time to work properly.
+i3-msg resize set "$SIZE"
+i3-msg move position "$LOC_X" "$LOC_Y"

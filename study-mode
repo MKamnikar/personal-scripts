@@ -1,0 +1,247 @@
+#!/bin/bash
+
+# This script makes it easy to focus on your studies.
+# Sadly it was actually written while procrastinating.
+
+# It accepts 'warm' or 'cold' as inputs and sets full-screen colors accordingly.
+# It also accepts 'same' or 'diff' as inputs to set same or similar colors. On multiple screens.
+# i3 config governs this behavior.
+
+# Along with setting full-screen feh it also opens browser on specified pages,
+# it prevents the computer from sleeping - this can be cancelled so the computer can still auto-lock
+# and it sets important pictures as backgrounds - such as timetable
+
+# Dependancies: browser, feh, xrandr, i3
+
+# SPECIFIED PAGES: - normally relaxing music stream and white noise
+WEBPAGES=" https://youtu.be/ArwcHjmsw3A?t=1
+https://www.youtube.com/watch?v=hHW1oY26kxQ"
+
+# Just a bunch of other pages.
+EXTRA_WEBPAGES="http://predmeti.fmf.uni-lj.si/modfiz1
+https://fiz.fmf.uni-lj.si/~gregor/sola/std.html
+https://sites.google.com/site/stdtut19/
+https://fmf.si/zapiski/list?department=1&level=1&year=2
+"
+
+# Browser of choice:
+BROWSER="firefox"
+
+# Set defaults:
+MUSIC="0"
+COLOR="warm"
+TICKING="0"
+WHITE_NOISE="0"
+FEH="0"
+SAME="0"
+OPEN_BROWSER="0"
+OPEN_EXTRA="0"
+WALLPAPER="0"
+HELP="Usage: study-mode [OPTION]
+Gets computer ready for studying. And prevents it from sleeping.
+Gets user in the mood with a neat quote.
+
+If desired opens Firefox on music pages if there is an active internet connection.
+And if so desired opens feh with solid colors and fullscreens them.
+
+Arguments:
+  -h        Prints this help
+  -m        Plays music in mpv or vlc instead of in browser.
+            to save on cpu and battery usage.
+  -n        Plays a recording of white noise to block surrounding
+            sounds. Very useful in a library.
+  -t        Plays sound of a ticking clock.
+  -w        Sets feh to display warm colors - DEFAULT BEHAVIOR
+            and also enables feh so you don't need '-f'
+  -c        Sets feh to display cold colors
+            and also enables feh so you don't need '-f'
+  -f        Enables feh. But '-w', '-c' and '-s' will also do it.
+  -s        Sets same color on all outputs
+            and also enables feh so you don't need '-f'
+  -b        Forces the browser to open. It doesn't by default
+  -E        Opens extra webpages.
+  -W        Resets wallpaper to timetable
+
+Example:
+    study-mode -w -s
+This would start study-mode with same warm color on all screens.
+
+    study-mode -ntm
+This would start study-mode and play white noise and ticking
+clock sound while also streaming music from youtube to mpv.
+
+By default it just prints a quote and prevents computer from sleeping.
+"
+
+# Check if inputs are in order.
+while getopts hmtnwcfsbEW option
+do
+    case "${option}" in
+        h) echo "$HELP" && exit 0;;
+        m) MUSIC="1" ;;
+        w) COLOR="warm"; FEH="1" ;;
+        n) WHITE_NOISE="1" ;;
+        t) TICKING="1" ;;
+        c) COLOR="cold"; FEH="1"  ;;
+        f) FEH="1" ;;
+        s) SAME="1"; FEH="1"  ;;
+        b) OPEN_BROWSER="1" ;;
+        E) OPEN_EXTRA="1" ;;
+        W) WALLPAPER="1" ;;
+    esac
+done
+
+# Find active monitors.
+MONITORS=$(xrandr --listactivemonitors | sed -n '2,$p' | awk '{print $4}')
+
+# Set feh outputs.
+if [[ "$FEH" == "1" ]];
+then
+    if [[ "$COLOR" == "warm" ]];
+    then
+        if [[ "$SAME" == "0" ]];
+        then
+            # Set different colors on MONITORS.
+            if [[ $(echo "$MONITORS" | wc -l) == "2" ]];
+            then
+                python ~/.config/i3/new_workspace.py > /dev/null
+                sleep 0.2
+                feh --title "fullscreen" ~/Pictures/Wallpapers/colors/antique-brass.jpg &
+                sleep 0.2
+                i3 focus output left > /dev/null
+                sleep 0.2
+                python ~/.config/i3/new_workspace.py > /dev/null
+                sleep 0.2
+                feh --title "fullscreen" ~/Pictures/Wallpapers/colors/atomic-tangerine.jpg &
+            else
+                python ~/.config/i3/new_workspace.py > /dev/null
+                sleep 0.2
+                feh --title "fullscreen" ~/Pictures/Wallpapers/colors/atomic-tangerine.jpg &
+            fi
+        elif [[ "$SAME" == "1" ]];
+        then
+            # Set same color on MONITORS.
+            for MON in $(echo "$MONITORS"); do
+                python ~/.config/i3/new_workspace.py > /dev/null
+                sleep 0.2
+                feh --title "fullscreen" ~/Pictures/Wallpapers/colors/atomic-tangerine.jpg &
+                sleep 0.2
+                i3 focus output left > /dev/null
+            done
+        fi
+    elif [[ "$COLOR" == "cold" ]];
+    then
+        if [[ "$SAME" == "0" ]];
+        then
+            # Set different colors on MONITORS.
+            if [[ $(echo "$MONITORS" | wc -l) == "2" ]];
+            then
+                python ~/.config/i3/new_workspace.py > /dev/null
+                sleep 0.2
+                feh --title "fullscreen" ~/Pictures/Wallpapers/colors/aero-blue.jpg &
+                sleep 0.2
+                i3 focus output left > /dev/null
+                sleep 0.2
+                python ~/.config/i3/new_workspace.py > /dev/null
+                sleep 0.2
+                feh --title "fullscreen" ~/Pictures/Wallpapers/colors/beau-blue.jpg &
+                sleep 0.2
+                i3 focus output left > /dev/null
+            else
+                python ~/.config/i3/new_workspace.py > /dev/null
+                sleep 0.2
+                feh --title "fullscreen" ~/Pictures/Wallpapers/colors/aero-blue.jpg &
+            fi
+        elif [[ "$SAME" == "1" ]];
+        then
+            # Set same color on MONITORS.
+            for MON in $(echo "$MONITORS"); do
+                python ~/.config/i3/new_workspace.py > /dev/null
+                sleep 0.2
+                feh --title "fullscreen" ~/Pictures/Wallpapers/colors/aero-blue.jpg &
+                sleep 0.2
+                i3 focus output left > /dev/null
+            done
+        fi
+    fi
+fi
+
+if [[ "$TICKING" == "1" ]]; then
+    mpv --loop=inf --volume=100 "$HOME/Music/ticking-clock-1h.opus" &> /dev/null &
+fi
+
+if [[ "$WHITE_NOISE" == "1" ]]; then
+    mpv --loop=inf --volume=94 "$HOME/Music/white-noise.webm" &> /dev/null &
+fi
+
+# Local music.
+if [[ "$MUSIC" == "1" ]]; then
+    if [[ -n $(hostname -I) ]]; # Ensure internet connection.
+    then
+        # mpv --volume=60 https://www.youtube.com/watch\?v\=hHW1oY26kxQ &> /dev/null &
+        mpv --volume=30 https://www.youtube.com/watch\?v\=5qap5aO4i9A &> /dev/null &
+    else
+        MUSIC="0"
+        echo "Couldn't play music: NO INTERNET"
+    fi
+fi
+
+# Open browser on specified pages.
+# Check internet connection : hostname -I should not be empty string.
+if [[ "$OPEN_BROWSER" == "1" ]]; then
+    if [[ -n $(hostname -I) ]];
+    then
+        # Open desired webpages in BROWSER.
+        for PAGE in $(echo "$WEBPAGES");
+        do
+            $("$BROWSER" "$PAGE")
+        done
+    else
+        echo "Couldn't open extra webpages: NO INTERNET CONNECTION"
+    fi
+fi
+
+# Opens additional pages besides music.
+if [[ "$OPEN_EXTRA" == "1" ]]; then
+    if [[ -n $(hostname -I) ]];
+    then
+        # Open desired webpages in BROWSER.
+        for PAGE in $(echo "$EXTRA_WEBPAGES");
+        do
+            $("$BROWSER" "$PAGE")
+        done
+    else
+        echo "Couldn't open extra webpages: NO INTERNET CONNECTION"
+    fi
+fi
+
+if [[ "$WALLPAPER" == "1" ]]; then
+    feh --bg-center ~/Pictures/Screenshots/urnik.png
+fi
+
+# Start by making some space.
+clear
+
+# A nice quote for good feels.
+fortune -a startrek science platitudes wisdom education medicine | cowsay -f bud-frogs | lolcat -S 1
+
+echo ''
+echo 'Study-mode active since: '
+date +"    %a, %d.%m.%Y - %T"
+echo '' # Newline for nicer formatting.
+
+if [[ "$TICKING" == "1" ]]; then
+    echo "Playing: Ticking clock"
+fi
+
+if [[ "$WHITE_NOISE" == "1" ]]; then
+    echo "Playing: White noise"
+fi
+
+if [[ "$MUSIC" == "1" ]]; then
+    echo "Playing: youtube stream: chilled-cow"
+fi
+
+# Prevent computer from sleeping from inactivity.
+printf "\nkeep-awake: "
+keep-awake

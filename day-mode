@@ -1,0 +1,9 @@
+#!/bin/env bash
+
+# Sets all monitors to their default brightness and gamma settings.
+
+OUTPUTS=$(xrandr --listactivemonitors | sed 1d | cut -d ' ' -f 3 | sed 's/[\*+]//g')
+
+for MONITOR in $OUTPUTS; do
+    xrandr --output "$MONITOR" --brightness 1 --gamma 1:1:1
+done

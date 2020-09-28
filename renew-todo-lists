@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Copies all lines not containing # or ## at the beggining to next day.
+# Needs a .log file to operate. usually stored at ~/Documents/.logs/renew-todo-lists.log
+
+# Stored in /usr/local/bin
+
+# Check if todays tasks have been already made.
+if [ "$(cat ~/Documents/.logs/renew-todo-lists.log | grep $(date '+%F') | head -1 )" != "$(date  +%F)" ]
+then
+    # Copy unfinished tasks to new day.
+    # Add additional star to the beggining of each line.
+    cat ~/Documents/Tasks/* | grep -v '##' | sed 's/\(.\+\)/* \1/' | sed 's/^\* \*/**/' >> ~/Documents/Tasks/$(date +"%F")
+
+    # Update log file.
+    echo $(date '+%F') > ~/Documents/.logs/renew-todo-lists.log
+
+    # Comment tasks of past day.
+    ls -1 ~/Documents/Tasks/* | grep -v $(date +'%F') | xargs -I {} sed -i 's/\(###   \)\?\(.*\)/###   \2/' {}
+fi
+exit 0
